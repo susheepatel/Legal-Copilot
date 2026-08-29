@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/mcp-config.json",
+  "providers": {
+    "local_cuda_engine": {
+      "name": "Local Qwen2.5-Coder (NVIDIA CUDA)",
+      "type": "openai-compatible",
+      "baseUrl": "http://localhost:11434/v1",
+      "apiKey": "local-no-key-required",
+      "models": [
+        {
+          "id": "qwen2.5-coder:7b",
+          "name": "Qwen 2.5 Coder 7B (Sub-10ms Local CUDA)",
+          "contextWindow": 8192,
+          "maxTokens": 4096,
+          "supportsStreaming": true,
+          "parameters": {
+            "temperature": 0.1,
+            "top_p": 0.9,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.1
+          }
+        }
+      ],
+      "defaultFor": [
+        "inline_autocomplete",
+        "subagent_code_generation",
+        "fallback_execution"
+      ]
+    }
+  }
+}
