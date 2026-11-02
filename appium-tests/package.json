@@ -1,0 +1,35 @@
+{
+  "name": "legal-copilot-appium-tests",
+  "version": "1.0.0",
+  "description": "Appium Mobile E2E Automation Test Suite for Legal Copilot Frontend (Android, iOS & Mobile Web)",
+  "main": "tests/app-tests.js",
+  "scripts": {
+    "test": "node tests/app-tests.js",
+    "test:android": "cross-env PLATFORM=android node tests/app-tests.js",
+    "test:ios": "cross-env PLATFORM=ios node tests/app-tests.js",
+    "test:mobile-web": "cross-env PLATFORM=mobile-web node tests/app-tests.js",
+    "report:excel": "python generate_appium_report.py",
+    "generate-excel": "python generate_appium_report.py"
+  },
+  "keywords": [
+    "appium",
+    "mobile-testing",
+    "android",
+    "ios",
+    "e2e-testing",
+    "legal-copilot",
+    "uiautomator2",
+    "xcuitest",
+    "excel-report"
+  ],
+  "author": "Legal Copilot Mobile QA Automation Team",
+  "license": "ISC",
+  "dependencies": {
+    "webdriverio": "^8.36.0",
+    "appium": "^2.11.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}
+

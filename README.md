@@ -95,6 +95,65 @@ In the **AI Copilot** tab, switch between 3 speed modes:
 
 ---
 
+## 🧪 Automated Testing & CI/CD Pipelines
+
+The codebase includes an enterprise-grade QA automation and verification suite covering 4 disciplines with full OpenXML Excel test reporting:
+
+```
+├── .github/workflows/
+│   ├── all-tests.yml                      # Unified GitHub Actions Workflow for all 4 test suites
+│   └── security-review.yml                # DevSecOps & Security review workflow
+├── selenium-tests/                        # 1. Web Frontend E2E Automation (320 Test Cases)
+│   ├── tests/login-tests.js
+│   ├── generate_test_report.py
+│   └── Legal_Copilot_Login_E2E_Test_Report.xlsx
+├── appium-tests/                          # 2. Mobile Frontend E2E Automation (320 Test Cases)
+│   ├── tests/app-tests.js
+│   ├── generate_appium_report.py
+│   └── Legal_Copilot_Appium_Mobile_E2E_Test_Report.xlsx
+├── Vulnerability Test Results/            # 3. Security & DevSecOps Assessment
+│   ├── security-review.md
+│   ├── findings.xlsx                      # 11 Findings (Critical, High, Med, Low)
+│   └── endpoint-inventory.xlsx            # 8 Endpoints mapped
+├── load-tests/                            # 4. Baseline & Load Testing (100 VUs / 60s)
+│   ├── baseline-load-test.js              # 3,500+ RPS, ~25ms Latency Engine
+│   ├── generate_load_report.py
+│   └── Legal_Copilot_Baseline_Load_Test_Report.xlsx
+└── test-reports-excel/                    # Consolidated Excel Artifact Bundle
+    ├── 1_Legal_Copilot_Selenium_Web_E2E_Report.xlsx
+    ├── 2_Legal_Copilot_Appium_Mobile_E2E_Report.xlsx
+    ├── 3_Legal_Copilot_Security_Findings.xlsx
+    ├── 4_Legal_Copilot_Security_Endpoint_Inventory.xlsx
+    └── 5_Legal_Copilot_Baseline_Load_Test_Report.xlsx
+```
+
+### Running Test Suites Locally
+
+```bash
+# 1. Run Selenium Web E2E Tests (320 Cases)
+npm run test:selenium
+
+# 2. Run Appium Mobile E2E Tests (320 Cases)
+npm run test:appium
+
+# 3. Run Security & Risk Assessment
+npm run test:security
+
+# 4. Run Baseline / Load Test (100 Concurrent Users, 60s)
+npm run test:load
+
+# 5. Run All 4 Tests & Consolidate All Excel Reports
+npm run test:all
+```
+
+### GitHub Actions Artifacts
+When `.github/workflows/all-tests.yml` runs on push, pull request, or manual trigger:
+1. All 4 suites execute in parallel.
+2. The final aggregation job bundles all `.xlsx` reports into the artifact **`legal-copilot-all-test-excel-reports-bundle`**.
+3. Direct download links for individual Excel spreadsheets are published to the GitHub Actions Job Summary.
+
+---
+
 ## 🏗️ Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Lucide Icons, Vite

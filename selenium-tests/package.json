@@ -1,0 +1,31 @@
+{
+  "name": "legal-copilot-selenium-tests",
+  "version": "1.0.0",
+  "description": "Enterprise Selenium WebDriver E2E Test Suite for Legal Copilot Web Frontend Login & Authentication",
+  "main": "tests/login-tests.js",
+  "scripts": {
+    "test": "node tests/login-tests.js",
+    "test:headless": "node tests/login-tests.js --headless",
+    "test:headed": "node tests/login-tests.js --headed",
+    "test:report": "node tests/login-tests.js --generate-excel",
+    "generate-excel": "python generate_test_report.py"
+  },
+  "keywords": [
+    "selenium",
+    "selenium-webdriver",
+    "e2e-testing",
+    "legal-copilot",
+    "authentication",
+    "qa-automation",
+    "excel-report"
+  ],
+  "author": "Legal Copilot QA Automation Team",
+  "license": "ISC",
+  "dependencies": {
+    "selenium-webdriver": "^4.27.0",
+    "chromedriver": "^133.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}

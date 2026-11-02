@@ -9,7 +9,13 @@
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:selenium": "node selenium-tests/tests/login-tests.js --headless",
+    "test:appium": "node appium-tests/tests/app-tests.js",
+    "test:security": "python \"Vulnerability Test Results/scripts/generate_security_excel.py\"",
+    "test:load": "node load-tests/baseline-load-test.js --vus=100 --duration=60",
+    "test:all": "node selenium-tests/tests/login-tests.js --headless && node appium-tests/tests/app-tests.js && python \"Vulnerability Test Results/scripts/generate_security_excel.py\" && node load-tests/baseline-load-test.js --vus=100 --duration=60 && python scripts/consolidate_test_reports.py",
+    "reports:consolidate": "python scripts/consolidate_test_reports.py"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",

@@ -1,0 +1,24 @@
+{
+  "name": "legal-copilot-load-tests",
+  "version": "1.0.0",
+  "description": "Baseline and Load Testing Suite for Legal Copilot (100 Concurrent Users, 60s Duration, RPS & Latency Metrics)",
+  "main": "baseline-load-test.js",
+  "scripts": {
+    "test:baseline": "node baseline-load-test.js --vus=100 --duration=60",
+    "test:quick": "node baseline-load-test.js --vus=20 --duration=10",
+    "test:stress": "node baseline-load-test.js --vus=250 --duration=60",
+    "report:excel": "python generate_load_report.py"
+  },
+  "keywords": [
+    "load-testing",
+    "baseline-testing",
+    "concurrency",
+    "performance",
+    "throughput",
+    "rps",
+    "latency"
+  ],
+  "author": "Legal Copilot Performance Engineering Team",
+  "license": "ISC"
+}
+
