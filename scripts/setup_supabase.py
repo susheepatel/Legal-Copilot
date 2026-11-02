@@ -132,3 +132,4 @@ def check_supabase():
 
 if __name__ == "__main__":
     check_supabase()
+

@@ -543,3 +543,4 @@ VALUES
     'invoice'
 )
 ON CONFLICT (id) DO NOTHING;
+

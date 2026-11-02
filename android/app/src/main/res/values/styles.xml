@@ -1,0 +1,19 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.LegalCopilot" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/brand_indigo</item>
+        <item name="colorPrimaryVariant">@color/brand_indigo_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor">@color/brand_slate_950</item>
+        <item name="android:navigationBarColor">@color/brand_slate_950</item>
+        <item name="android:windowBackground">@color/brand_slate_950</item>
+    </style>
+
+    <style name="Theme.LegalCopilot.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/brand_slate_950</item>
+        <item name="android:navigationBarColor">@color/brand_slate_950</item>
+        <item name="android:windowBackground">@color/brand_slate_950</item>
+    </style>
+</resources>
