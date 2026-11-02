@@ -99,6 +99,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           { data: docsData },
           { data: tasksData },
           { data: invoicesData },
+          { data: logsData },
         ] = await Promise.all([
           supabase.from('cases').select('*').eq('firm_id', firm.id).order('created_at', { ascending: false }),
           supabase.from('clients').select('*').eq('firm_id', firm.id).order('name', { ascending: true }),
@@ -106,15 +107,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           supabase.from('documents').select('*').order('uploaded_at', { ascending: false }),
           supabase.from('tasks').select('*').order('due_date', { ascending: true }),
           supabase.from('invoices').select('*').eq('firm_id', firm.id).order('created_at', { ascending: false }),
+          supabase.from('activity_logs').select('*').eq('firm_id', firm.id).order('timestamp', { ascending: false }).limit(25),
         ]);
 
-        if (casesData && casesData.length > 0) {
-          setCases(casesData);
-          if (clientsData) setClients(clientsData);
-          if (hearingsData) setHearings(hearingsData);
-          if (docsData) setDocuments(docsData);
-          if (tasksData) setTasks(tasksData);
-          if (invoicesData) setInvoices(invoicesData);
+        if (casesData !== null && clientsData !== null) {
+          setCases(casesData || []);
+          setClients(clientsData || []);
+          setHearings(hearingsData || []);
+          setDocuments(docsData || []);
+          setTasks(tasksData || []);
+          setInvoices(invoicesData || []);
+          if (logsData && logsData.length > 0) {
+            setActivityLogs(logsData);
+          }
           setIsLoadingData(false);
           return;
         }
@@ -191,6 +196,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updated = [newLog, ...activityLogs.slice(0, 25)];
     setActivityLogs(updated);
     localStorage.setItem('legal_copilot_logs', JSON.stringify(updated));
+
+    if (supabase && getStoredSupabaseConfig().isConfigured && firm?.id) {
+      supabase.from('activity_logs').insert([{
+        id: newLog.id,
+        firm_id: firm.id,
+        user_name: newLog.user_name,
+        action: newLog.action,
+        target: newLog.target,
+        type: newLog.type,
+        timestamp: newLog.timestamp,
+      }]).then(({ error }) => {
+        if (error) console.warn('Supabase activity log sync warning:', error);
+      });
+    }
   };
 
   // Case Operations

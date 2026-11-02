@@ -47,6 +47,42 @@
 
 ---
 
+## 🔐 Strict Advocate Authentication & Cloud Database
+
+Legal Copilot enforces strict **Bar-Credentialed Authentication**. Only registered advocates are authorized to access chamber case records, client dossiers, and judicial dockets.
+
+### 👥 Registered Advocate Credentials (Test Access)
+
+| Advocate | Role | Bar Enrollment No. | Registered Email | Password |
+|---|---|---|---|---|
+| **Adv. Rajesh Verma** | Managing Partner | `D/1482/2008` (Delhi) | `rajesh.verma@chamber.in` | `Admin@2025` |
+| **Adv. Priya Sharma** | Senior Associate | `D/3290/2016` (Delhi) | `priya.sharma@chamber.in` | `Associate@2025` |
+| **Adv. Aditya Nair** | Associate Counsel | `K/890/2020` (Kerala) | `aditya.nair@chamber.in` | `Associate@2025` |
+
+> [!NOTE]
+> Unregistered users are strictly denied entry. New advocates can register directly using the **Register Chamber** tab with their official Bar Council enrollment number.
+
+### 🗄️ Supabase Cloud Database Synchronization
+All chamber data is synchronized across 10 cloud PostgreSQL tables with Row-Level Security (RLS):
+- `firms` (Chamber & Law Firm metadata)
+- `profiles` (Advocate profiles & Bar credentials)
+- `clients` (Client directory & KYC)
+- `cases` (Litigation matters, CNR numbers & benches)
+- `hearings` (Cause list & court hearing schedules)
+- `documents` (Case filings, vakalatnamas & orders)
+- `tasks` (Judicial deadlines & drafting tasks)
+- `invoices` (Professional fee memos & retainers)
+- `activity_logs` (Audit trails & chamber logs)
+- `ai_research_queries` (Statutory & limitation logs)
+
+### 📱 Native Android App
+A full native Android application is included in the `android/` directory:
+- Native WebAppInterface bridge communicating with Supabase
+- Bundled offline assets in `android/app/src/main/assets/public/`
+- Full-screen Android app with responsive mobile navigation and camera document scanning support
+
+---
+
 ## 🚀 Quick Start & Installation
 
 ### Prerequisites
