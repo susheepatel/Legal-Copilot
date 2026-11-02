@@ -33,3 +33,4 @@ public class LegalDatabaseSyncBridge {
         Toast.makeText(mContext, "Database sync failed: " + errorMessage, Toast.LENGTH_LONG).show();
     }
 }
+
