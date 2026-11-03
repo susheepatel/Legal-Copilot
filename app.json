@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Legal Copilot",
+    "slug": "legal-copilot",
+    "version": "2.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#090d16",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#090d16"
+      },
+      "package": "in.legalcopilot.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "supabaseUrl": "https://fgcmspgfxdieljbhliuq.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnY21zcGdmeGRpZWxqYmhsaXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MzM4NDMsImV4cCI6MjEwMzUwOTg0M30.TSAtwi1Afa_RcWJT9cIRmHlZs7-GCtSvGuKars9zgAk",
+      "supabasePublishableKey": "sb_publishable_SRteZ8T7wNoxp920TVbZwg_SxTlG4Ju",
+      "supabaseJwksUrl": "https://fgcmspgfxdieljbhliuq.supabase.co/auth/v1/.well-known/jwks.json"
+    }
+  }
+}
+

@@ -1,26 +1,49 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { executeCustomLegalAiModel } from './customLegalAiModel';
 
-// Default Supabase project credentials provided by user
-export const DEFAULT_SUPABASE_URL = 'https://your-project.supabase.co';
-export const DEFAULT_SUPABASE_ANON_KEY = 'your-anon-key';
-export const DEFAULT_SUPABASE_JWKS_URL = 'https://your-project.supabase.co/auth/v1/.well-known/jwks.json';
-
-// Retrieve credentials from Vite env, user localStorage, or default project credentials
-const metaEnv = (import.meta as any).env || {};
-const ENV_SUPABASE_URL = metaEnv.VITE_SUPABASE_URL;
-const ENV_SUPABASE_ANON_KEY = metaEnv.VITE_SUPABASE_ANON_KEY;
+// Default Supabase project credentials for Legal Copilot cloud database
+export const DEFAULT_SUPABASE_URL = 'https://fgcmspgfxdieljbhliuq.supabase.co';
+export const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnY21zcGdmeGRpZWxqYmhsaXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MzM4NDMsImV4cCI6MjEwMzUwOTg0M30.TSAtwi1Afa_RcWJT9cIRmHlZs7-GCtSvGuKars9zgAk';
+export const DEFAULT_SUPABASE_JWKS_URL = 'https://fgcmspgfxdieljbhliuq.supabase.co/auth/v1/.well-known/jwks.json';
 
 export function getStoredSupabaseConfig() {
   let localUrl = '';
   let localKey = '';
-  if (typeof window !== 'undefined') {
-    localUrl = localStorage.getItem('legal_copilot_supabase_url') || '';
-    localKey = localStorage.getItem('legal_copilot_supabase_anon_key') || '';
-  }
   
-  const url = localUrl || ENV_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-  const key = localKey || ENV_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localUrl = localStorage.getItem('legal_copilot_supabase_url') || '';
+      localKey = localStorage.getItem('legal_copilot_supabase_anon_key') || '';
+    } catch {}
+  }
+
+  let envUrl = '';
+  let envKey = '';
+  try {
+    if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
+      envUrl = (import.meta as any).env.VITE_SUPABASE_URL || '';
+      envKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
+    }
+  } catch {}
+
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      envUrl = envUrl || process.env.VITE_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+      envKey = envKey || process.env.VITE_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+    }
+  } catch {}
+
+  try {
+    const Constants = require('expo-constants')?.default;
+    if (Constants?.expoConfig?.extra) {
+      envUrl = envUrl || Constants.expoConfig.extra.supabaseUrl;
+      envKey = envKey || Constants.expoConfig.extra.supabaseAnonKey;
+    }
+  } catch {}
+  
+  const url = localUrl || envUrl || DEFAULT_SUPABASE_URL;
+  const key = localKey || envKey || DEFAULT_SUPABASE_ANON_KEY;
   const anonKey = key;
   
   const isDefaultOrPlaceholder = !url || url.includes('your-project') || !key || key.includes('your-anon-key');
@@ -37,9 +60,11 @@ export function getStoredSupabaseConfig() {
 export const getSupabaseConfig = getStoredSupabaseConfig;
 
 export function saveSupabaseConfig(url: string, key: string) {
-  if (typeof window !== 'undefined') {
-    if (url) localStorage.setItem('legal_copilot_supabase_url', url.trim());
-    if (key) localStorage.setItem('legal_copilot_supabase_anon_key', key.trim());
+  if (typeof localStorage !== 'undefined') {
+    try {
+      if (url) localStorage.setItem('legal_copilot_supabase_url', url.trim());
+      if (key) localStorage.setItem('legal_copilot_supabase_anon_key', key.trim());
+    } catch {}
   }
   // Reinitialize client
   initSupabaseClient();
@@ -51,10 +76,13 @@ export function initSupabaseClient(): SupabaseClient | null {
   const config = getStoredSupabaseConfig();
   if (config.isConfigured) {
     try {
+      const storageAdapter = typeof localStorage !== 'undefined' ? localStorage : AsyncStorage;
       activeClient = createClient(config.url, config.key, {
         auth: {
+          storage: storageAdapter,
           persistSession: true,
           autoRefreshToken: true,
+          detectSessionInUrl: false,
         },
       });
       return activeClient;

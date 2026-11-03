@@ -75,6 +75,7 @@ export const BillingView: React.FC<BillingViewProps> = ({ onSelectCase }) => {
     const invNum = `INV-LC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const created = await addInvoice({
+      firm_id: 'firm-delhi-001',
       case_id: selectedCaseId,
       client_id: selectedClientId,
       invoice_number: invNum,

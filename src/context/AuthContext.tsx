@@ -117,9 +117,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const saveAuthenticatedSession = (profile: Profile, userFirm: Firm) => {
     setUser(profile);
     setFirm(userFirm);
-    sessionStorage.setItem('legal_copilot_session_active', 'true');
-    sessionStorage.setItem('legal_copilot_auth_user', JSON.stringify(profile));
-    sessionStorage.setItem('legal_copilot_auth_firm', JSON.stringify(userFirm));
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('legal_copilot_session_active', 'true');
+      sessionStorage.setItem('legal_copilot_auth_user', JSON.stringify(profile));
+      sessionStorage.setItem('legal_copilot_auth_firm', JSON.stringify(userFirm));
+    }
   };
 
   useEffect(() => {
@@ -127,21 +129,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const config = getStoredSupabaseConfig();
     setIsSupabaseConnected(config.isConfigured);
 
-    // Clean up persistent auto-login cache from localStorage
-    localStorage.removeItem('legal_copilot_auth_user');
-    localStorage.removeItem('legal_copilot_auth_firm');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('legal_copilot_auth_user');
+      localStorage.removeItem('legal_copilot_auth_firm');
+    }
 
     // Only restore session if actively working inside this browser tab
-    const isSessionActive = sessionStorage.getItem('legal_copilot_session_active');
+    const isSessionActive = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('legal_copilot_session_active') : null;
     if (isSessionActive === 'true') {
-      const activeUser = sessionStorage.getItem('legal_copilot_auth_user');
-      const activeFirm = sessionStorage.getItem('legal_copilot_auth_firm');
+      const activeUser = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('legal_copilot_auth_user') : null;
+      const activeFirm = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('legal_copilot_auth_firm') : null;
       if (activeUser) {
         try {
           setUser(JSON.parse(activeUser));
           if (activeFirm) setFirm(JSON.parse(activeFirm));
         } catch {
-          sessionStorage.clear();
+          if (typeof sessionStorage !== 'undefined') sessionStorage.clear();
           setUser(null);
           setFirm(null);
         }

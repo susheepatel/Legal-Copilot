@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-xs font-semibold text-white truncate flex items-center gap-1">
                   {user?.full_name || 'Advocate'}
                   {user?.role === 'admin' && (
-                    <ShieldCheck className="w-3 h-3 text-indigo-400 shrink-0" title="Firm Admin" />
+                    <ShieldCheck className="w-3 h-3 text-indigo-400 shrink-0" />
                   )}
                 </p>
                 <p className="text-[10px] text-slate-400 truncate">
