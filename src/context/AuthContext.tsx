@@ -110,73 +110,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Profile | null>(null);
   const [firm, setFirm] = useState<Firm | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
+  // Helper to persist session exclusively for the active browser window/tab
+  const saveAuthenticatedSession = (profile: Profile, userFirm: Firm) => {
+    setUser(profile);
+    setFirm(userFirm);
+    sessionStorage.setItem('legal_copilot_session_active', 'true');
+    sessionStorage.setItem('legal_copilot_auth_user', JSON.stringify(profile));
+    sessionStorage.setItem('legal_copilot_auth_firm', JSON.stringify(userFirm));
+  };
+
   useEffect(() => {
-    // Check initial authentication state from Supabase Auth or verified session
-    const initAuth = async () => {
-      const config = getStoredSupabaseConfig();
-      setIsSupabaseConnected(config.isConfigured);
+    // When the application starts, ALWAYS open the Login Page first
+    const config = getStoredSupabaseConfig();
+    setIsSupabaseConnected(config.isConfigured);
 
-      if (supabase && config.isConfigured) {
+    // Clean up persistent auto-login cache from localStorage
+    localStorage.removeItem('legal_copilot_auth_user');
+    localStorage.removeItem('legal_copilot_auth_firm');
+
+    // Only restore session if actively working inside this browser tab
+    const isSessionActive = sessionStorage.getItem('legal_copilot_session_active');
+    if (isSessionActive === 'true') {
+      const activeUser = sessionStorage.getItem('legal_copilot_auth_user');
+      const activeFirm = sessionStorage.getItem('legal_copilot_auth_firm');
+      if (activeUser) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            // Verify and retrieve registered advocate profile from Supabase
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .maybeSingle();
-
-            if (profileData) {
-              setUser(profileData);
-              if (profileData.firm_id) {
-                const { data: firmData } = await supabase
-                  .from('firms')
-                  .select('*')
-                  .eq('id', profileData.firm_id)
-                  .maybeSingle();
-                if (firmData) setFirm(firmData);
-              }
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (e) {
-          console.warn('Supabase auth session check notice:', e);
-        }
-      }
-
-      // Check localStorage for active verified session
-      const savedUserStr = localStorage.getItem('legal_copilot_auth_user');
-      const savedFirmStr = localStorage.getItem('legal_copilot_auth_firm');
-
-      if (savedUserStr) {
-        try {
-          const parsedUser = JSON.parse(savedUserStr);
-          setUser(parsedUser);
-          if (savedFirmStr) {
-            setFirm(JSON.parse(savedFirmStr));
-          } else {
-            setFirm(INITIAL_FIRM);
-          }
+          setUser(JSON.parse(activeUser));
+          if (activeFirm) setFirm(JSON.parse(activeFirm));
         } catch {
-          // If parse fails, require login
+          sessionStorage.clear();
           setUser(null);
           setFirm(null);
         }
-      } else {
-        // No active session — strictly require login
-        setUser(null);
-        setFirm(null);
       }
+    } else {
+      // Application start: strictly require login first
+      setUser(null);
+      setFirm(null);
+    }
 
-      setIsLoading(false);
-    };
-
-    initAuth();
+    setIsLoading(false);
   }, []);
 
   // ─── STRICT AUTHENTICATION LOGIN ───────────────────────────────────────────
@@ -208,9 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .maybeSingle();
 
             if (profile) {
-              setUser(profile);
-              localStorage.setItem('legal_copilot_auth_user', JSON.stringify(profile));
-
+              let userFirm = INITIAL_FIRM;
               if (profile.firm_id) {
                 const { data: firmData } = await supabase
                   .from('firms')
@@ -218,12 +192,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   .eq('id', profile.firm_id)
                   .maybeSingle();
 
-                if (firmData) {
-                  setFirm(firmData);
-                  localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(firmData));
-                }
+                if (firmData) userFirm = firmData;
               }
-
+              saveAuthenticatedSession(profile, userFirm);
               setIsLoading(false);
               return { success: true };
             }
@@ -268,10 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (firmData) userFirm = firmData;
             }
 
-            setUser(dbProfile);
-            setFirm(userFirm);
-            localStorage.setItem('legal_copilot_auth_user', JSON.stringify(dbProfile));
-            localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(userFirm));
+            saveAuthenticatedSession(dbProfile, userFirm);
             setIsLoading(false);
             return { success: true };
           }
@@ -288,10 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return { success: false, error: 'Authentication failed: Incorrect password for registered advocate.' };
         }
 
-        setUser(registeredUser.profile);
-        setFirm(registeredUser.firm);
-        localStorage.setItem('legal_copilot_auth_user', JSON.stringify(registeredUser.profile));
-        localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(registeredUser.firm));
+        saveAuthenticatedSession(registeredUser.profile, registeredUser.firm);
 
         // Sync profile to Supabase database if connected
         if (supabase && getStoredSupabaseConfig().isConfigured) {
@@ -309,10 +274,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (localSignups[cleanEmail]) {
         const stored = localSignups[cleanEmail];
         if (stored.password === cleanPass) {
-          setUser(stored.profile);
-          setFirm(stored.firm);
-          localStorage.setItem('legal_copilot_auth_user', JSON.stringify(stored.profile));
-          localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(stored.firm));
+          saveAuthenticatedSession(stored.profile, stored.firm);
           setIsLoading(false);
           return { success: true };
         } else {
@@ -441,12 +403,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       localStorage.setItem('legal_copilot_registered_advocates', JSON.stringify(localRegistry));
 
-      // 6. Log the newly registered advocate in smoothly
-      setUser(newProfile);
-      setFirm(newFirm);
-      localStorage.setItem('legal_copilot_auth_user', JSON.stringify(newProfile));
-      localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(newFirm));
-
+      // 6. Log the newly registered advocate in smoothly for this session
+      saveAuthenticatedSession(newProfile, newFirm);
       setIsLoading(false);
       return { success: true };
 
@@ -466,10 +424,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       console.warn('Supabase logout notice:', e);
     }
-    setUser(null);
-    setFirm(null);
+    sessionStorage.removeItem('legal_copilot_session_active');
+    sessionStorage.removeItem('legal_copilot_auth_user');
+    sessionStorage.removeItem('legal_copilot_auth_firm');
     localStorage.removeItem('legal_copilot_auth_user');
     localStorage.removeItem('legal_copilot_auth_firm');
+    setUser(null);
+    setFirm(null);
     setIsLoading(false);
   };
 
@@ -489,10 +450,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const switchDemoUser = (userId: string) => {
     const found = INITIAL_PROFILES.find(p => p.id === userId);
     if (found) {
-      setUser(found);
-      setFirm(INITIAL_FIRM);
-      localStorage.setItem('legal_copilot_auth_user', JSON.stringify(found));
-      localStorage.setItem('legal_copilot_auth_firm', JSON.stringify(INITIAL_FIRM));
+      saveAuthenticatedSession(found, INITIAL_FIRM);
     }
   };
 
@@ -500,7 +458,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     const updated = { ...user, ...updates };
     setUser(updated);
-    localStorage.setItem('legal_copilot_auth_user', JSON.stringify(updated));
+    sessionStorage.setItem('legal_copilot_auth_user', JSON.stringify(updated));
 
     if (supabase && getStoredSupabaseConfig().isConfigured) {
       await supabase.from('profiles').update(updates).eq('id', user.id);
